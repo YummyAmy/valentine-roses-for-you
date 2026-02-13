@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Run Code 🌹</title>
+
+  <style>
+    body{
+      margin:0;
+      background:#ffe6ee;
+      font-family:Arial, sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+      overflow:hidden;
+      flex-direction:column;
+    }
+
+    /* Keep your UI above petals */
+    .ui{
+      position:relative;
+      z-index:2;
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    /* BUTTON */
+    button{
+      padding:14px 28px;
+      font-size:18px;
+      border:none;
+      border-radius:8px;
+      background:#b3003b;
+      color:white;
+      cursor:pointer;
+      transition:.3s;
+    }
+    button:hover{ transform:scale(1.05); }
+
+    /* MESSAGE */
+    #message{
+      margin-top:25px;
+      font-size:26px;
+      color:#b3003b;
+      text-align:center;
+      line-height:1.4em;
+      min-height:90px;
+    }
+
+    /* ROSES */
+    #garden{ display:none; margin-top:20px; }
+    svg{ width:460px; height:auto; }
+
+    .bloom{ animation:bloom 1.5s ease forwards; }
+    @keyframes bloom{
+      from{transform:scale(.7);opacity:0;}
+      to{transform:scale(1);opacity:1;}
+    }
+
+    /* Rose “zoom in/out” with pauses */
+    .rose{
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: rosePulse 5.8s ease-in-out infinite;
+    }
+    .rose-delay1{ animation-delay: .15s; }
+    .rose-delay2{ animation-delay: .55s; }
+    .rose-delay3{ animation-delay: .95s; }
+    .rose-delay4{ animation-delay: 1.25s; }
+    .rose-delay5{ animation-delay: 1.55s; }
+
+    @keyframes rosePulse{
+      0%   { transform: scale(0.86) rotate(-1deg); }
+      35%  { transform: scale(1.18) rotate(1deg); }
+      55%  { transform: scale(1.18) rotate(1deg); }  /* pause at max */
+      75%  { transform: scale(0.86) rotate(-1deg); }
+      100% { transform: scale(0.86) rotate(-1deg); } /* pause at min */
+    }
+
+    /* FLOATING FLOWER PETALS */
+    .petal{
+      position:absolute;
+      width:18px;
+      height:18px;
+      opacity:.8;
+      animation:fall linear infinite;
+      pointer-events:none;
+      z-index:1; /* behind UI */
+    }
+    @keyframes fall{
+      from{transform:translateY(-50px) rotate(0deg);}
+      to{transform:translateY(110vh) rotate(360deg);}
+    }
+
+    /* FOOTER */
+    footer{
+      margin-top:14px;
+      font-size:12.5px;
+      color:#8a2d4a;
+      opacity:0.95;
+      text-align:center;
+      padding: 0 14px 10px;
+    }
+    #stats{
+      margin-top:6px;
+      font-size:12px;
+      color:#8a2d4a;
+      opacity:0.95;
+    }
+
+    /* Responsive overrides */
+    :root{
+      --page-pad: 18px;
+      --gap: 14px;
+    }
+    *{ box-sizing: border-box; }
+
+    body{
+      height:auto;
+      min-height:100vh;
+      min-height:100svh; /* mobile-safe */
+      justify-content:center;
+      gap:var(--gap);
+      padding:var(--page-pad) 0;
+      overflow:hidden;
+    }
+
+    button{
+      font-size: clamp(16px, 4.2vw, 18px);
+      padding: clamp(12px, 3.5vw, 14px) clamp(20px, 6vw, 28px);
+    }
+
+    svg{
+      width: min(460px, 92vw);
+      height:auto;
+    }
+
+    #garden{ margin-top:0; }
+
+    #message{
+      margin-top:0;
+      max-width:92vw;
+      padding:0 14px;
+      font-size: clamp(18px, 4.8vw, 26px);
+      line-height:1.35em;
+      min-height:0; /* IMPORTANT: stops it from pushing content down */
+    }
+
+    @media (max-width:480px), (max-height:700px){
+      body{
+        justify-content:flex-start;
+        padding-top:16px;
+      }
+      svg{
+        width:min(420px, 92vw);
+        max-height:52svh;
+      }
+      #message{ padding:0 16px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="ui">
+    <!-- GoatCounter: RUN CODE click tracking happens via data-goatcounter-click -->
+    <button id="runBtn" data-goatcounter-click="run_roses" onclick="runCode()">RUN CODE</button>
+
+    <div id="garden" class="bloom">
+      <svg viewBox="0 0 420 420" aria-label="Rose garden">
+        <defs>
+          <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#7a0026" flood-opacity="0.35"></feDropShadow>
+          </filter>
+
+          <radialGradient id="petalOuterGrad" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#ffd1de"></stop>
+            <stop offset="55%" stop-color="#ff2e73"></stop>
+            <stop offset="100%" stop-color="#b3003b"></stop>
+          </radialGradient>
+
+          <radialGradient id="petalInnerGrad" cx="40%" cy="35%" r="75%">
+            <stop offset="0%" stop-color="#ffe3ec"></stop>
+            <stop offset="60%" stop-color="#ff4d88"></stop>
+            <stop offset="100%" stop-color="#cc0033"></stop>
+          </radialGradient>
+
+          <radialGradient id="budGrad" cx="40%" cy="35%" r="75%">
+            <stop offset="0%" stop-color="#ffe6ee"></stop>
+            <stop offset="60%" stop-color="#ff6699"></stop>
+            <stop offset="100%" stop-color="#cc0033"></stop>
+          </radialGradient>
+
+          <g id="roseGraphic">
+            <g opacity="0.98">
+              <path d="M0,-26 C11,-24 22,-12 18,4 C14,20 6,28 0,30 C-6,28 -14,20 -18,4 C-22,-12 -11,-24 0,-26Z"
+                    fill="url(#petalOuterGrad)" transform="rotate(0)"></path>
+              <path d="M0,-26 C11,-24 22,-12 18,4 C14,20 6,28 0,30 C-6,28 -14,20 -18,4 C-22,-12 -11,-24 0,-26Z"
+                    fill="url(#petalOuterGrad)" transform="rotate(45)"></path>
+              <path d="M0,-26 C11,-24 22,-12 18,4 C14,20 6,28 0,30 C-6,28 -14,20 -18,4 C-22,-12 -11,-24 0,-26Z"
+                    fill="url(#petalOuterGrad)" transform="rotate(90)"></path>
+              <path d="M0,-26 C11,-24 22,-12 18,4 C14,20 6,28 0,30 C-6,28 -14,20 -18,4 C-22,-12 -11,-24 0,-26Z"
+                    fill="url(#petalOuterGrad)" transform="rotate(135)"></path>
+              <path d="M0,-26 C11,-24 22,-12 18,4 C14,20 6,28 0,30 C-6,28 -14,20 -18,4 C-22,-12 -11,-24 0,-26Z"
+                    fill="url(#petalOuterGrad)" transform="rotate(180)"></path>
+              <path d="M0,-26 C11,-24 22,-12 18,4 C14,20 6,28 0,30 C-6,28 -14,20 -18,4 C-22,-12 -11,-24 0,-26Z"
+                    fill="url(#petalOuterGrad)" transform="rotate(225)"></path>
+              <path d="M0,-26 C11,-24 22,-12 18,4 C14,20 6,28 0,30 C-6,28 -14,20 -18,4 C-22,-12 -11,-24 0,-26Z"
+                    fill="url(#petalOuterGrad)" transform="rotate(270)"></path>
+              <path d="M0,-26 C11,-24 22,-12 18,4 C14,20 6,28 0,30 C-6,28 -14,20 -18,4 C-22,-12 -11,-24 0,-26Z"
+                    fill="url(#petalOuterGrad)" transform="rotate(315)"></path>
+            </g>
+
+            <g opacity="0.95">
+              <path d="M0,-22 C9,-21 18,-10 15,3 C12,15 5,22 0,24 C-5,22 -12,15 -15,3 C-18,-10 -9,-21 0,-22Z"
+                    fill="url(#petalInnerGrad)" transform="rotate(22.5) scale(0.72)"></path>
+              <path d="M0,-22 C9,-21 18,-10 15,3 C12,15 5,22 0,24 C-5,22 -12,15 -15,3 C-18,-10 -9,-21 0,-22Z"
+                    fill="url(#petalInnerGrad)" transform="rotate(82.5) scale(0.72)"></path>
+              <path d="M0,-22 C9,-21 18,-10 15,3 C12,15 5,22 0,24 C-5,22 -12,15 -15,3 C-18,-10 -9,-21 0,-22Z"
+                    fill="url(#petalInnerGrad)" transform="rotate(142.5) scale(0.72)"></path>
+              <path d="M0,-22 C9,-21 18,-10 15,3 C12,15 5,22 0,24 C-5,22 -12,15 -15,3 C-18,-10 -9,-21 0,-22Z"
+                    fill="url(#petalInnerGrad)" transform="rotate(202.5) scale(0.72)"></path>
+              <path d="M0,-22 C9,-21 18,-10 15,3 C12,15 5,22 0,24 C-5,22 -12,15 -15,3 C-18,-10 -9,-21 0,-22Z"
+                    fill="url(#petalInnerGrad)" transform="rotate(262.5) scale(0.72)"></path>
+              <path d="M0,-22 C9,-21 18,-10 15,3 C12,15 5,22 0,24 C-5,22 -12,15 -15,3 C-18,-10 -9,-21 0,-22Z"
+                    fill="url(#petalInnerGrad)" transform="rotate(322.5) scale(0.72)"></path>
+            </g>
+
+            <circle r="8" fill="url(#budGrad)" opacity="0.98"></circle>
+
+            <path d="M-2,-3 C5,-7 10,1 3,4 C-2,6 -6,1 -2,-1"
+                  fill="none" stroke="#ffe6ee" stroke-width="2" stroke-linecap="round" opacity="0.65"></path>
+          </g>
+        </defs>
+
+        <!-- STEMS -->
+        <path d="M210 360 L160 210" stroke="green" stroke-width="6"></path>
+        <path d="M210 360 L210 190" stroke="green" stroke-width="6"></path>
+        <path d="M210 360 L260 210" stroke="green" stroke-width="6"></path>
+        <path d="M210 360 L185 220" stroke="green" stroke-width="5"></path>
+        <path d="M210 360 L235 220" stroke="green" stroke-width="5"></path>
+
+        <!-- LEAVES -->
+        <ellipse cx="185" cy="270" rx="18" ry="10" fill="green" transform="rotate(-25 185 270)"></ellipse>
+        <ellipse cx="235" cy="300" rx="18" ry="10" fill="green" transform="rotate(25 235 300)"></ellipse>
+
+        <!-- ROSES -->
+        <g transform="translate(150 200) scale(0.92)">
+          <g class="rose rose-delay1" filter="url(#softShadow)">
+            <use href="#roseGraphic" xlink:href="#roseGraphic"></use>
+          </g>
+        </g>
+
+        <g transform="translate(210 180) scale(1.02)">
+          <g class="rose rose-delay2" filter="url(#softShadow)">
+            <use href="#roseGraphic" xlink:href="#roseGraphic"></use>
+          </g>
+        </g>
+
+        <g transform="translate(270 200) scale(0.92)">
+          <g class="rose rose-delay3" filter="url(#softShadow)">
+            <use href="#roseGraphic" xlink:href="#roseGraphic"></use>
+          </g>
+        </g>
+
+        <g transform="translate(185 220) scale(0.62)">
+          <g class="rose rose-delay4" filter="url(#softShadow)">
+            <use href="#roseGraphic" xlink:href="#roseGraphic"></use>
+          </g>
+        </g>
+
+        <g transform="translate(235 220) scale(0.62)">
+          <g class="rose rose-delay5" filter="url(#softShadow)">
+            <use href="#roseGraphic" xlink:href="#roseGraphic"></use>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div id="message"></div>
+
+    <footer>
+      Made by Amy — Data According to Me 🌹
+      <div id="stats"></div>
+    </footer>
+  </div>
+
+  <script>
+    /* Message typing */
+    const lines = [
+      "Happy Valentine's Day",
+      "— from your favourite data scientist,",
+      "Amy ❤️❤️❤️❤️❤️"
+    ];
+
+    function typeMessage(){
+      const el = document.getElementById("message");
+      let lineIndex = 0;
+      let charIndex = 0;
+
+      function type(){
+        if(lineIndex < lines.length){
+          if(charIndex < lines[lineIndex].length){
+            el.innerHTML += lines[lineIndex][charIndex];
+            charIndex++;
+            setTimeout(type, 40);
+          } else {
+            el.innerHTML += "<br>";
+            lineIndex++;
+            charIndex = 0;
+            setTimeout(type, 300);
+          }
+        }
+      }
+      type();
+    }
+
+    /* Petals */
+    function createPetals(){
+      for(let i=0;i<45;i++){
+        let petal = document.createElementNS("http://www.w3.org/2000/svg","svg");
+        petal.setAttribute("viewBox","0 0 20 20");
+        petal.classList.add("petal");
+
+        petal.innerHTML =
+          '<path d="M10 2 C14 2,18 6,10 18 C2 6,6 2,10 2Z" fill="#ff4d88"/>';
+
+        petal.style.left = (Math.random() * 100) + "vw";
+        petal.style.animationDuration = (6 + Math.random() * 6) + "s";
+        petal.style.animationDelay = (Math.random() * 5) + "s";
+
+        document.body.appendChild(petal);
+      }
+    }
+
+    /* Run button */
+    function runCode(){
+      document.getElementById("runBtn").style.display = "none";
+      document.getElementById("garden").style.display = "block";
+
+      typeMessage();
+      createPetals();
+    }
+  </script>
+
+  <!-- ------------------- ANALYTICS (GoatCounter) ------------------- -->
+
+  <script data-goatcounter="https://YummyAmy/valentine-roses-for-you.goatcounter.com/count"
+          async src="https://gc.zgo.at/count.js"></script>
+
+  <!-- visitor counter on the page -->
+  <script>
+    (function () {
+      var t = setInterval(function () {
+        if (window.goatcounter && typeof goatcounter.visit_count === "function") {
+          clearInterval(t);
+          goatcounter.visit_count({
+            append: "#stats",
+            no_branding: true
+          });
+        }
+      }, 120);
+    })();
+  </script>
+</body>
+</html>
